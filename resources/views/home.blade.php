@@ -1,59 +1,39 @@
-<?php
-$pageTitle = 'OpenAI Webchat - AI-Powered Conversations';
-ob_start();
-?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' || false }" x-init="$watch('darkMode', value => { localStorage.setItem('darkMode', value); if (value) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); } }); if (darkMode) document.documentElement.classList.add('dark');" :class="{'dark': darkMode === true}">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?= $pageTitle ?></title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-  <script>
-    // Suppress Tailwind production warning
-    const originalWarn = console.warn;
-    console.warn = function(...args) {
-      const message = args[0] ? args[0].toString() : "";
-      if (message.includes("tailwindcss.com should not be used in production")) {
-        return;
-      }
-      originalWarn.apply(console, args);
-    };
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenAI Webchat - AI-Powered Conversations</title>
+  <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
     tailwind.config = {
+      content: ["./resources/**/*.{html,js,php,blade.php}"],
       theme: {
         extend: {
           colors: {
             brand: {
-              50: "#f0f9ff",
-              100: "#e0f2fe",
-              200: "#bae6fd",
-              300: "#7dd3fc",
-              400: "#38bdf8",
-              500: "#0ea5e9",
-              600: "#0284c7",
-              700: "#0369a1",
-              800: "#075985",
-              900: "#0c4a6e",
-              950: "#082f49",
-            },
-            gray: {
-              50: "#f9fafb",
-              100: "#f3f4f6",
-              200: "#e5e7eb",
-              300: "#d1d5db",
-              400: "#9ca3af",
-              500: "#6b7280",
-              600: "#4b5563",
-              700: "#374151",
-              800: "#1f2937",
-              900: "#111827",
+              50: "#eff6ff",
+              100: "#dbeafe",
+              200: "#bfdbfe",
+              300: "#93c5fd",
+              400: "#60a5fa",
+              500: "#3b82f6",
+              600: "#2563eb",
+              700: "#1d4ed8",
+              800: "#1e40af",
+              900: "#1e3a8a",
             },
           },
           fontSize: {
+            "theme-xs": ["0.75rem", "1rem"],
+            "theme-sm": ["0.875rem", "1.25rem"],
+            "theme-base": ["1rem", "1.5rem"],
+            "theme-lg": ["1.125rem", "1.75rem"],
+            "theme-xl": ["1.25rem", "1.75rem"],
             "title-sm": ["1.5rem", "2rem"],
             "title-md": ["1.875rem", "2.25rem"],
             "title-lg": ["2.25rem", "2.5rem"],
@@ -72,30 +52,21 @@ ob_start();
       darkMode: "class",
     };
   </script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body
-  x-data="{ darkMode: false }"
-  x-init="
-        darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
-        $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)));
-    "
-  :class="{'dark': darkMode === true}"
-  class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900">
   <!-- Navigation -->
-  <nav
-    class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-800">
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
             </svg>
           </div>
           <span class="text-xl font-bold text-gray-900 dark:text-white">OpenAI Webchat</span>
@@ -108,42 +79,20 @@ ob_start();
             @click="darkMode = !darkMode"
             class="rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
             title="Toggle dark mode">
-            <svg
-              x-show="!darkMode"
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
-            <svg
-              x-show="darkMode"
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
             </svg>
           </button>
 
           <!-- Auth Buttons -->
           <div class="flex items-center gap-3">
-            <a
-              href="/login"
-              class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 transition-colors">
+            <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 transition-colors">
               Sign In
             </a>
-            <a
-              href="/register"
-              class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">
+            <a href="{{ route('register') }}" class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors dark:ring-offset-gray-900">
               Get Started
             </a>
           </div>
@@ -153,65 +102,28 @@ ob_start();
   </nav>
 
   <!-- Hero Section -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-    <!-- Background Pattern -->
-    <div
-      class="absolute inset-0 bg-grid-gray-900/[0.04] bg-[size:20px_20px] dark:bg-grid-white/[0.04]"></div>
+  <section class="relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-800 dark:from-brand-700 dark:via-brand-800 dark:to-indigo-900">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI0Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32 lg:pb-24">
       <div class="text-center">
-        <!-- Hero Badge -->
-        <div
-          class="inline-flex items-center rounded-full bg-brand-100 px-3 py-1 text-sm font-medium text-brand-800 ring-1 ring-inset ring-brand-200 dark:bg-brand-900/20 dark:text-brand-300 dark:ring-brand-800 mb-8">
-          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-          Powered by OpenAI GPT-4
-        </div>
-
-        <!-- Hero Title -->
-        <h1
-          class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl lg:text-7xl">
-          AI-Powered
-          <span
-            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">
-            Conversations
-          </span>
+        <h1 class="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl lg:text-7xl">
+          <span class="block">AI-Powered</span>
+          <span class="block text-brand-200">Conversations</span>
         </h1>
-
-        <!-- Hero Description -->
-        <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Experience the future of AI conversation with our clean, maintainable OpenAI-powered
-          webchat. Create dynamic agents, use powerful tools, and engage in meaningful
-          conversations.
+        <p class="mt-6 max-w-3xl mx-auto text-lg sm:text-xl text-brand-100 leading-relaxed">
+          Create dynamic agents, use powerful tools, and engage in meaningful conversations.
         </p>
 
         <!-- Hero CTA -->
         <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="/register"
-            class="group inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-3 text-base font-semibold text-white shadow-theme-sm hover:bg-brand-500 hover:shadow-theme-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-200">
+          <a href="{{ route('register') }}" class="group inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-3 text-base font-semibold text-white shadow-theme-sm hover:bg-brand-500 hover:shadow-theme-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-200">
             Get Started Free
-            <svg
-              class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            <svg class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
             </svg>
           </a>
-          <a
-            href="/login"
-            class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-semibold text-gray-900 shadow-theme-sm hover:bg-gray-50 hover:shadow-theme-md dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
+          <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-semibold text-gray-900 shadow-theme-sm hover:bg-gray-50 hover:shadow-theme-md dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
             Sign In
           </a>
         </div>
@@ -219,75 +131,39 @@ ob_start();
         <!-- Hero Stats -->
         <div class="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-3">
           <div class="flex flex-col items-center">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/20">
-              <svg
-                class="h-6 w-6 text-brand-600 dark:text-brand-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/20">
+              <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Smart Agents</h3>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
-              Create custom AI agents with specialized tools
-            </p>
+            <div class="mt-4 text-center">
+              <div class="text-2xl font-bold text-white">Lightning Fast</div>
+              <div class="text-brand-200">Real-time responses</div>
+            </div>
           </div>
 
           <div class="flex flex-col items-center">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/20">
-              <svg
-                class="h-6 w-6 text-purple-600 dark:text-purple-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/20">
+              <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
               </svg>
             </div>
-            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
-              Powerful Tools
-            </h3>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
-              Math, search, weather, and file processing
-            </p>
+            <div class="mt-4 text-center">
+              <div class="text-2xl font-bold text-white">Smart Agents</div>
+              <div class="text-brand-200">Customizable AI assistants</div>
+            </div>
           </div>
 
           <div class="flex flex-col items-center">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/20">
-              <svg
-                class="h-6 w-6 text-green-600 dark:text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/20">
+              <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
               </svg>
             </div>
-            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
-              Real-time Chat
-            </h3>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
-              Instant responses with conversation history
-            </p>
+            <div class="mt-4 text-center">
+              <div class="text-2xl font-bold text-white">Secure & Private</div>
+              <div class="text-brand-200">Enterprise-grade security</div>
+            </div>
           </div>
         </div>
       </div>
@@ -295,234 +171,90 @@ ob_start();
   </section>
 
   <!-- Features Section -->
-  <section class="py-24 bg-white dark:bg-gray-900">
+  <section class="py-16 bg-white dark:bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2
-          class="text-base text-brand-600 font-semibold tracking-wide uppercase dark:text-brand-400">
-          Features
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
+          Everything you need for AI conversations
         </h2>
-        <p
-          class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-          Built for Modern AI Conversations
-        </p>
-        <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto dark:text-gray-400">
-          Our system combines simplicity with powerful features, following our core philosophy of
-          clarity over complexity.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:gap-16">
-        <!-- Dynamic Agents -->
-        <div class="flex gap-6">
-          <div class="flex-shrink-0">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 dark:bg-brand-900/20">
-              <svg
-                class="h-6 w-6 text-brand-600 dark:text-brand-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Dynamic Agent Creation
-            </h3>
-            <p class="mt-2 text-base text-gray-600 dark:text-gray-400">
-              Create custom AI agents on-the-fly with simple code. No complex factories or
-              configurations - just clean, direct agent creation.
-            </p>
-          </div>
-        </div>
-
-        <!-- Tool System -->
-        <div class="flex gap-6">
-          <div class="flex-shrink-0">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/20">
-              <svg
-                class="h-6 w-6 text-purple-600 dark:text-purple-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Extensible Tool System
-            </h3>
-            <p class="mt-2 text-base text-gray-600 dark:text-gray-400">
-              Equip your agents with powerful tools like code interpreters, web search, file
-              readers, and more. Mix and match tools for any use case.
-            </p>
-          </div>
-        </div>
-
-        <!-- Clean Architecture -->
-        <div class="flex gap-6">
-          <div class="flex-shrink-0">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/20">
-              <svg
-                class="h-6 w-6 text-green-600 dark:text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-              </svg>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Clean Architecture
-            </h3>
-            <p class="mt-2 text-base text-gray-600 dark:text-gray-400">
-              Built with maintainability in mind. Clear separation between web and API
-              controllers, shared business logic, and no unnecessary complexity.
-            </p>
-          </div>
-        </div>
-
-        <!-- OpenAI Integration -->
-        <div class="flex gap-6">
-          <div class="flex-shrink-0">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/20">
-              <svg
-                class="h-6 w-6 text-orange-600 dark:text-orange-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">OpenAI Powered</h3>
-            <p class="mt-2 text-base text-gray-600 dark:text-gray-400">
-              Leverages OpenAI's latest models with proper thread management, conversation
-              history, and future support for assistants and tool calling.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Demo Section -->
-  <section class="py-24 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Try it Now</h2>
         <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
-          Experience the power of AI conversations with our demo account
+          Powerful features that make AI conversations simple and effective.
         </p>
       </div>
 
-      <div
-        class="max-w-md mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-theme-lg p-8 border border-gray-200 dark:border-gray-700">
-        <div class="text-center">
-          <div
-            class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/20 mb-6">
-            <svg
-              class="h-8 w-8 text-brand-600 dark:text-brand-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-          </div>
-
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Demo Account</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            Test all features with our pre-configured demo account
-          </p>
-
-          <div class="space-y-3 text-sm">
-            <div
-              class="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span class="text-gray-600 dark:text-gray-400">Username:</span>
-              <span class="font-mono font-medium text-gray-900 dark:text-white">demo</span>
+      <div class="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Feature 1 -->
+        <div class="relative group">
+          <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-600 to-indigo-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
             </div>
-            <div
-              class="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span class="text-gray-600 dark:text-gray-400">Password:</span>
-              <span class="font-mono font-medium text-gray-900 dark:text-white">password</span>
-            </div>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Smart Conversations</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Engage in natural, contextual conversations with advanced AI that understands your needs.
+            </p>
           </div>
+        </div>
 
-          <a
-            href="/login"
-            class="mt-6 w-full inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-theme-sm hover:bg-brand-500 transition-colors">
-            Try Demo Account
-            <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-            </svg>
-          </a>
+        <!-- Feature 2 -->
+        <div class="relative group">
+          <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-600 to-indigo-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Custom Agents</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Create and customize AI agents tailored to your specific tasks and requirements.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="relative group">
+          <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-600 to-indigo-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Real-time Responses</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Get instant responses with streaming capabilities for a seamless conversation experience.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- CTA Section -->
-  <section class="py-24 bg-brand-600 dark:bg-brand-700">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl font-bold text-white sm:text-4xl">Ready to start chatting?</h2>
-      <p class="mt-4 text-lg text-brand-100">
-        Create your account and experience the future of AI conversations.
-      </p>
-      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a
-          href="/register"
-          class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-brand-600 shadow-theme-sm hover:bg-gray-50 transition-colors">
-          Get Started Free
-          <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-          </svg>
-        </a>
-        <a
-          href="/login"
-          class="inline-flex items-center justify-center rounded-lg border-2 border-white px-6 py-3 text-base font-semibold text-white hover:bg-white hover:text-brand-600 transition-colors">
-          Sign In
-        </a>
+  <section class="bg-brand-600 dark:bg-brand-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-white sm:text-4xl">
+          Ready to start your AI journey?
+        </h2>
+        <p class="mt-4 text-lg text-brand-100">
+          Join thousands of users already using our platform.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="{{ route('register') }}" class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-brand-600 shadow-theme-sm hover:bg-gray-50 transition-colors">
+            Get Started Free
+            <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+          <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-lg border-2 border-white px-6 py-3 text-base font-semibold text-white hover:bg-white hover:text-brand-600 transition-colors">
+            Sign In
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -535,11 +267,7 @@ ob_start();
         <div class="flex items-center gap-3 mb-4">
           <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
             </svg>
           </div>
           <span class="text-xl font-bold text-gray-900 dark:text-white">OpenAI Webchat</span>
@@ -553,25 +281,20 @@ ob_start();
         <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-8">
           <span>Powered by</span>
           <div class="flex items-center gap-2">
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium">Laravel 12</span>
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium">NeuronAI</span>
             <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium">PHP 8.4</span>
-            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium">OpenAI</span>
-            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium">MySQL</span>
             <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium">Docker</span>
           </div>
         </div>
 
         <!-- Copyright -->
         <div class="text-sm text-gray-500 dark:text-gray-400">
-          <p>&copy; 2025 OpenAI Webchat. Built for learning and demonstration.</p>
+          <p>&copy; {{ date('Y') }} OpenAI Webchat. Built with Laravel and NeuronAI.</p>
         </div>
       </div>
     </div>
   </footer>
+
 </body>
-
 </html>
-
-<?php
-$content = ob_get_clean();
-echo $content;
-?>
